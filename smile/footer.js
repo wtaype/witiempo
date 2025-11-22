@@ -8,8 +8,8 @@ const version = 'v11';
 
 
 /** ACTUALIZACION TAG version dia hora   [START]  
-git add . ; git commit -m "Actualizacion Principal v11.11.39"
-git push origin main
+git add . ; git commit -m "Actualizacion Principal v11.10.39"
+git push origin main 
 
 // Actualizar despues de main- 
 git tag v11 -m "Version v11" ; git push origin v11
