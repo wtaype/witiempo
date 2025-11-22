@@ -143,13 +143,27 @@ class WiRouter {
 
     // Manejar botón atrás/adelante del navegador
     window.addEventListener('popstate', (e) => {
-      const path = e.state?.path || window.location.pathname;
+      const path = e.state?.path || this.getCleanPath();
       this.navigate(path, false);
     });
 
     // Cargar ruta inicial
-    const initialPath = window.location.pathname === '/' ? '/hora' : window.location.pathname;
+    const initialPath = this.getCleanPath();
     this.navigate(initialPath, false);
+  }
+
+  // 🔧 Obtener path limpio (sin base de Vite)
+  getCleanPath() {
+    let pathname = window.location.pathname;
+    
+    // Remover base path de Vite si existe (ej: /witiempo/)
+    const base = import.meta.env.BASE_URL || '/';
+    if (base !== '/' && pathname.startsWith(base)) {
+      pathname = pathname.slice(base.length - 1); // Mantener el / inicial
+    }
+    
+    // Si está vacío o es solo /, devolver /hora
+    return pathname === '/' || pathname === '' ? '/hora' : pathname;
   }
 }
 
