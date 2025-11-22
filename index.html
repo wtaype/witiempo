@@ -44,14 +44,58 @@
       <!-- LADO DERECHO: Temas + Auth -->
       <div class="wiheader_right">
         <div class="witemas"></div>
-        <button class="wibtn_auth" data-auth="register">
-          <i class="fas fa-user-plus"></i>
-          <span>Registrar</span>
-        </button>
-        <button class="wibtn_auth" data-auth="login">
-          <i class="fas fa-sign-in-alt"></i>
-          <span>Login</span>
-        </button>
+
+        <!-- 🚀 AUTH UI - Renderizado instantáneo -->
+        <div id="auth-container">
+          <!-- Se renderiza instantáneamente con JavaScript inline -->
+          <script>
+            (function () {
+              try {
+                const cached = localStorage.getItem('wiAuthUser');
+                if (cached) {
+                  const data = JSON.parse(cached);
+                  if (data && data.expiry > Date.now()) {
+                    const user = data.value;
+                    const inicial = (user.nombre || 'U').charAt(0).toUpperCase();
+                    const foto = user.foto || './smile.png';
+                    document.getElementById('auth-container').innerHTML = `
+                      <div class="auth-user" data-auth-state="authenticated">
+                        <div class="user-avatar" style="background-image: url('${foto}')">
+                          ${!foto || foto === './smile.png' ? inicial : ''}
+                        </div>
+                        <span class="user-name">${user.nombre || 'Usuario'}</span>
+                        <button class="btn-logout" title="Cerrar sesión">
+                          <i class="fas fa-sign-out-alt"></i>
+                          <span>Salir</span>
+                        </button>
+                      </div>
+                    `;
+                  } else {
+                    // Cache expirado
+                    localStorage.removeItem('wiAuthUser');
+                    throw new Error('Cache expired');
+                  }
+                } else {
+                  throw new Error('No cache');
+                }
+              } catch (e) {
+                // No hay cache o error - mostrar botones guest
+                document.getElementById('auth-container').innerHTML = `
+                  <div class="auth-guest" data-auth-state="guest">
+                    <button class="wibtn_auth registrar" data-auth="register">
+                      <i class="fas fa-user-plus"></i>
+                      <span>Registrar</span>
+                    </button>
+                    <button class="wibtn_auth login" data-auth="login">
+                      <i class="fas fa-sign-in-alt"></i>
+                      <span>Login</span>
+                    </button>
+                  </div>
+                `;
+              }
+            })();
+          </script>
+        </div>
       </div>
     </header>
 

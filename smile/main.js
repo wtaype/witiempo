@@ -3,6 +3,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { wiTema, Notificacion } from './widev.js';
 import { router } from './router.js';
 import './footer.js';
+import './wiauth-ui.js';
+import './wiauth-ui.css';
+import './wiauth.js'; // Importar modales de auth
 
 // =============================================
 // CONFIGURACIÓN DEL ROUTER SPA
@@ -15,15 +18,6 @@ router.register('/calculadora', () => import('./pages/calculadora.js'));
 router.register('/cronometro', () => import('./pages/cronometro.js'));
 
 // =============================================
-// BOTONES DE AUTH (Por ahora solo visual)
-// =============================================
-$(document).on('click', '.wibtn_auth', function() {
-  const action = $(this).data('auth');
-  const actionText = action === 'register' ? 'Registro' : 'Inicio de sesión';
-  Notificacion(`${actionText} próximamente disponible`, 'info', 2000);
-});
-
-// =============================================
 // INICIALIZACIÓN INMEDIATA
 // =============================================
 
@@ -32,4 +26,6 @@ router.init();
 
 console.log('🚀 Sistema SPA inicializado');
 console.log('📍 Rutas disponibles:', Object.keys(router.routes));
+
+
 

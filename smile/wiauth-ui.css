@@ -1,0 +1,147 @@
+/* ==============================
+   🚀 AUTH UI STYLES - ULTRA RÁPIDO
+   ============================== */
+
+/* === CONTENEDOR AUTH === */
+.auth-user,
+.auth-guest,
+.auth-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  transition: all 0.3s ease;
+}
+
+/* === USUARIO AUTENTICADO === */
+.auth-user {
+  background: var(--bg_1);
+  padding: 0.6vh 1vw;
+  border-radius: 2vh;
+  border: 1px solid var(--bg12);
+}
+
+.user-avatar {
+  width: 3.5vh;
+  height: 3.5vh;
+  border-radius: 50%;
+  background: var(--mco);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--txa);
+  font-weight: 700;
+  font-size: var(--fz_c5);
+  border: 2px solid var(--F);
+  box-shadow: 0 0.2vh 0.8vh rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 1vh var(--mco);
+}
+
+.user-name {
+  font-size: var(--fz_c2);
+  font-weight: 600;
+  color: var(--tx);
+  max-width: 12vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.4vw;
+  padding: 0.6vh 1vw;
+  background: transparent;
+  border: 1px solid var(--bg12);
+  border-radius: 0.8vh;
+  color: var(--tx);
+  font-size: var(--fz_c4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: var(--error);
+  color: var(--F);
+  border-color: var(--error);
+  transform: translateY(-0.1vh);
+}
+
+.btn-logout i {
+  font-size: var(--fz_c5);
+}
+
+/* === INVITADO === */
+.auth-guest {
+  gap: 0.5vh;
+}
+
+/* === SKELETON LOADING === */
+.auth-skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+  width: 3.5vh;
+  height: 3.5vh;
+  border-radius: 50%;
+  background: linear-gradient(90deg, var(--bg_1) 25%, var(--bg_2) 50%, var(--bg_1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  width: 8vw;
+  height: 2vh;
+  border-radius: 0.5vh;
+  background: linear-gradient(90deg, var(--bg_1) 25%, var(--bg_2) 50%, var(--bg_1) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .user-name {
+    display: none;
+  }
+  
+  .btn-logout span {
+    display: none;
+  }
+  
+  .auth-user {
+    padding: 0.5vh;
+  }
+}
+
+/* === TRANSICIONES SUAVES === */
+[data-auth-state] {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+[data-auth-state].fade-out {
+  opacity: 0;
+  transform: translateY(-0.5vh);
+}
+
+[data-auth-state].fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
