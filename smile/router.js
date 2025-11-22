@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import { Notificacion } from './widev.js';
+import { Notificacion, wiPath, wiAnimate } from './widev.js';
 
 // =============================================
-// SISTEMA DE ROUTING SPA - ULTRA RÁPIDO
+// SISTEMA DE ROUTING SPA - ULTRA OPTIMIZADO
 // =============================================
 
 class WiRouter {
@@ -13,21 +13,17 @@ class WiRouter {
     this.isNavigating = false;
   }
 
-  // Registrar una ruta
   register(path, module) {
     this.routes[path] = module;
   }
 
-  // Navegar a una ruta
   async navigate(path, addToHistory = true) {
-    // Prevenir navegación múltiple simultánea
     if (this.isNavigating) return;
     this.isNavigating = true;
 
-    // Normalizar path
-    const normalizedPath = path === '/' ? '/hora' : path;
+    // Usar wiPath.clean para normalizar
+    const normalizedPath = wiPath.clean(path);
 
-    // Verificar si la ruta existe
     if (!this.routes[normalizedPath]) {
       console.warn(`Ruta no encontrada: ${normalizedPath}`);
       Notificacion('Página no encontrada', 'error', 2000);
@@ -36,39 +32,26 @@ class WiRouter {
     }
 
     try {
-      // Actualizar navegación activa
       this.updateActiveNav(normalizedPath);
 
-      // Transición de salida suave
-    if (this.currentRoute) {
-      await this.fadeOut();
-    }
+      // Cargar módulo
+      const moduleLoader = this.routes[normalizedPath];
+      const module = typeof moduleLoader === 'function' ? await moduleLoader() : moduleLoader;
+      const content = await module.render();
 
-    const moduleLoader = this.routes[normalizedPath];
-    const module = typeof moduleLoader === 'function' 
-      ? await moduleLoader()  // Si es función, ejecutar (lazy)
-      : moduleLoader;         // Si ya está cargado, usar directo
-    
-    const content = await module.render();
-      // Actualizar contenido
-      $(this.contentContainer).html(content);
+      // Usar wiAnimate.fade para transición
+      await wiAnimate.fade(this.contentContainer, content);
 
       // Actualizar título
-      document.title = normalizedPath.replace('/', '').replace(/^(\w)/, c => c.toUpperCase()) + ' - Wihope' || 'Wihope';
+      const pageName = normalizedPath.replace('/', '').replace(/^(\w)/, c => c.toUpperCase()) || 'Hora';
+      document.title = `${pageName} - Wihope`;
 
-      // Inicializar el módulo si tiene función init
-      if (module.init) {
-        module.init();
-      }
+      // Inicializar módulo
+      if (module.init) module.init();
 
-
-      // Transición de entrada suave
-      await this.fadeIn();
-
-      // Actualizar URL si es necesario
+      // Actualizar URL usando wiPath.update
       if (addToHistory) {
-        const url = normalizedPath === '/hora' ? '/' : normalizedPath;
-        window.history.pushState({ path: normalizedPath }, '', url);
+        wiPath.update(normalizedPath);
       }
 
       this.currentRoute = normalizedPath;
@@ -80,43 +63,21 @@ class WiRouter {
     }
   }
 
-  // Actualizar navegación activa
   updateActiveNav(path) {
     const page = path.replace('/', '') || 'hora';
     $('.winav_item').removeClass('active');
     $(`.winav_item[data-page="${page}"]`).addClass('active');
   }
 
-  // Transición de salida
-  fadeOut() {
-    return new Promise(resolve => {
-      $(this.contentContainer)
-        .css({ opacity: 1 })
-        .animate({ opacity: 0 }, 150, resolve);
-    });
-  }
-
-  // Transición de entrada
-  fadeIn() {
-    return new Promise(resolve => {
-      $(this.contentContainer)
-        .css({ opacity: 0 })
-        .animate({ opacity: 1 }, 150, resolve);
-    });
-  }
-
-  // Pre-cargar un módulo (Velocidad Extrema)
   async prefetch(path) {
-    const normalizedPath = path === '/' ? '/hora' : path;
+    const normalizedPath = wiPath.clean(path);
     
-    // Si ya está cargado (no es función) o no existe, no hacer nada
     if (!this.routes[normalizedPath] || typeof this.routes[normalizedPath] !== 'function') {
       return;
     }
 
     console.log(`⚡ Prefetching: ${normalizedPath}`);
     try {
-      // Cargar el módulo y guardarlo en caché
       const module = await this.routes[normalizedPath]();
       this.routes[normalizedPath] = module;
     } catch (e) {
@@ -124,9 +85,8 @@ class WiRouter {
     }
   }
 
-  // Inicializar router
   init() {
-    // Manejar clicks en navegación
+    // Clicks en navegación
     $(document).on('click', '.winav_item', (e) => {
       e.preventDefault();
       const page = $(e.currentTarget).data('page');
@@ -134,38 +94,23 @@ class WiRouter {
       this.navigate(path);
     });
 
-    // 🔥 VELOCIDAD EXTREMA: Prefetch al pasar el mouse
+    // Prefetch al pasar el mouse
     $(document).on('mouseenter', '.winav_item', (e) => {
       const page = $(e.currentTarget).data('page');
       const path = page === 'hora' ? '/' : `/${page}`;
       this.prefetch(path);
     });
 
-    // Manejar botón atrás/adelante del navegador
+    // Botón atrás/adelante
     window.addEventListener('popstate', (e) => {
-      const path = e.state?.path || this.getCleanPath();
+      const path = e.state?.path || wiPath.clean(window.location.pathname);
       this.navigate(path, false);
     });
 
     // Cargar ruta inicial
-    const initialPath = this.getCleanPath();
+    const initialPath = wiPath.clean(window.location.pathname);
     this.navigate(initialPath, false);
-  }
-
-  // 🔧 Obtener path limpio (sin base de Vite)
-  getCleanPath() {
-    let pathname = window.location.pathname;
-    
-    // Remover base path de Vite si existe (ej: /witiempo/)
-    const base = import.meta.env.BASE_URL || '/';
-    if (base !== '/' && pathname.startsWith(base)) {
-      pathname = pathname.slice(base.length - 1); // Mantener el / inicial
-    }
-    
-    // Si está vacío o es solo /, devolver /hora
-    return pathname === '/' || pathname === '' ? '/hora' : pathname;
   }
 }
 
-// Exportar instancia única del router
 export const router = new WiRouter();
